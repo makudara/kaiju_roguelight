@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>怪獣発生日 - ローグライト・プロトタイプ</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Kaiju Genesis / Prototype</p>
+          <h1>怪獣発生日 - Webプロトタイプ</h1>
+        </div>
+        <div class="topbar-stats" id="metaPanel"></div>
+      </header>
+
+      <main id="app"></main>
+    </div>
+
+    <template id="screen-title">
+      <section class="screen hero-screen">
+        <div class="hero-copy panel">
+          <p class="eyebrow accent">問題: 災厄は都市に生まれる</p>
+          <h2>怪獣を育て、都市を崩す。</h2>
+          <p class="lead">
+            発生核、媒介環境、増幅要因の組み合わせから怪獣を構築し、
+            前兆フェーズで歪みを蓄積。顕現後はカードバトルで都市機能を破壊します。
+          </p>
+          <div class="hero-actions">
+            <button class="primary" data-action="goto-setup">新規ラン開始</button>
+            <button class="secondary" data-action="goto-codex">図鑑 / 履歴</button>
+          </div>
+        </div>
+
+        <div class="hero-visual panel">
+          <div class="kaiju-sigil">
+            <div class="sigil-core"></div>
+            <div class="sigil-ring"></div>
+            <div class="sigil-ring ring-2"></div>
+          </div>
+          <div class="hero-points">
+            <article>
+              <h3>1 ランの流れ</h3>
+              <p>発生核選択 → 前兆マップ → 怪獣顕現 → 都市攻略戦 → リザルト</p>
+            </article>
+            <article>
+              <h3>MVP 範囲</h3>
+              <p>構成管理、ラン進行、カード戦闘、怪獣ビルド、履歴保存を実装。</p>
+            </article>
+            <article>
+              <h3>勝利条件</h3>
+              <p>都市の中枢機能を崩壊させる。怪獣が沈黙すると敗北。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <template id="screen-setup">
+      <section class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow accent">Run Setup</p>
+            <h2>発生条件を組み、今回の怪獣を定義する</h2>
+          </div>
+          <button class="secondary" data-action="back-title">戻る</button>
+        </div>
+
+        <div class="setup-grid">
+          <section class="panel">
+            <h3>1. 発生核</h3>
+            <div class="option-grid" id="causeOptions"></div>
+          </section>
+          <section class="panel">
+            <h3>2. 媒介環境</h3>
+            <div class="option-grid" id="environmentOptions"></div>
+          </section>
+          <section class="panel">
+            <h3>3. 増幅要因</h3>
+            <div class="option-grid" id="amplifierOptions"></div>
+          </section>
+          <aside class="panel preview-panel">
+            <p class="eyebrow accent">Current Build</p>
+            <div id="setupPreview"></div>
+            <button class="primary wide" data-action="start-run">この怪獣で出現する</button>
+          </aside>
+        </div>
+      </section>
+    </template>
+
+    <template id="screen-map">
+      <section class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow accent">Omen Phase</p>
+            <h2>前兆フェーズで歪みを育てる</h2>
+          </div>
+          <button class="secondary" data-action="abandon-run">ランを中断</button>
+        </div>
+
+        <div class="map-layout">
+          <aside class="panel side-summary" id="runSummary"></aside>
+          <section class="panel map-panel">
+            <div class="map-header">
+              <div>
+                <h3>前兆マップ</h3>
+                <p>接続済みノードから次の異変を選び、怪獣の方向性を固定します。</p>
+              </div>
+              <div class="tier-indicator" id="tierIndicator"></div>
+            </div>
+            <div id="mapBoard" class="map-board"></div>
+          </section>
+          <aside class="panel event-panel">
+            <div id="nodeDetail"></div>
+            <button class="primary wide hidden" id="enterBattleButton" data-action="enter-battle">
+              顕現して都市攻略戦へ
+            </button>
+          </aside>
+        </div>
+      </section>
+    </template>
+
+    <template id="screen-battle">
+      <section class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow accent">City Assault</p>
+            <h2 id="battleHeading">都市攻略カードバトル</h2>
+          </div>
+          <button class="secondary" data-action="retreat-run">撤退</button>
+        </div>
+
+        <div class="battle-layout">
+          <section class="panel battle-side" id="kaijuPanel"></section>
+          <section class="panel battle-center">
+            <div class="battle-stage">
+              <div class="stage-status" id="battleStatus"></div>
+              <div class="stage-art">
+                <div class="monster-silhouette"></div>
+                <div class="city-silhouette"></div>
+              </div>
+              <div class="battle-log" id="battleLog"></div>
+            </div>
+            <div class="hand-header">
+              <h3>手札</h3>
+              <div class="resource-line" id="handMeta"></div>
+            </div>
+            <div class="hand-grid" id="handGrid"></div>
+            <div class="battle-actions">
+              <button class="secondary" data-action="draw-info">山札/捨札</button>
+              <button class="primary" data-action="end-turn">ターン終了</button>
+            </div>
+          </section>
+          <section class="panel battle-side" id="cityPanel"></section>
+        </div>
+      </section>
+    </template>
+
+    <template id="screen-result">
+      <section class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow accent">Result</p>
+            <h2 id="resultTitle"></h2>
+          </div>
+          <button class="secondary" data-action="goto-codex">図鑑を見る</button>
+        </div>
+
+        <div class="result-layout">
+          <section class="panel" id="resultSummary"></section>
+          <section class="panel" id="unlockSummary"></section>
+        </div>
+
+        <div class="result-actions">
+          <button class="primary" data-action="goto-setup">別の怪獣で再挑戦</button>
+          <button class="secondary" data-action="back-title">タイトルへ</button>
+        </div>
+      </section>
+    </template>
+
+    <template id="screen-codex">
+      <section class="screen">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow accent">Codex</p>
+            <h2>図鑑 / ラン履歴</h2>
+          </div>
+          <button class="secondary" data-action="back-title">戻る</button>
+        </div>
+        <div class="codex-layout">
+          <section class="panel" id="historyPanel"></section>
+          <section class="panel" id="bestiaryPanel"></section>
+        </div>
+      </section>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
