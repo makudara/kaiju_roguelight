@@ -41,6 +41,8 @@ GitHub Pages でそのままプレイできます。必要な workflow は追加
 3. GitHub の `Settings > Pages` で `Build and deployment` の `Source` を `GitHub Actions` にする
 4. `main` へ push すると自動で公開される
 
+最初のデプロイ前に `Settings > Pages` を一度保存して、Pages を有効化してください。これが未設定だと workflow は `Get Pages site failed` で失敗します。
+
 公開 URL は通常、次の形式です。
 
 ```text
