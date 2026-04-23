@@ -1,6 +1,36 @@
 "use strict";
 
 const STORAGE_KEY = "kaiju-roguelight-prototype-save-v1";
+const KAIJU_VISUAL_MANIFEST_PATH = "./assets/kaiju/manifest.json";
+const DEFAULT_KAIJU_VISUALS = [
+  {
+    id: "radiation",
+    name: "熔核装甲型",
+    theme: "黒鉄の厚い外殻と青緑の放射発光を備えた、結晶背びれの重装型怪獣。",
+    battleImage: "./assets/kaiju/radiation/battle.png",
+    portraitImage: "./assets/kaiju/radiation/portrait.png",
+    iconImage: "./assets/kaiju/radiation/icon.png",
+    tags: ["放射能", "熔核装甲", "結晶背びれ", "熱線器官"],
+  },
+  {
+    id: "faith",
+    name: "神域侵蝕型",
+    theme: "神具と石像を思わせる外装に、青白い霊光と呪印を帯びた荘厳な怪獣。",
+    battleImage: "./assets/kaiju/faith/battle.png",
+    portraitImage: "./assets/kaiju/faith/portrait.png",
+    iconImage: "./assets/kaiju/faith/icon.png",
+    tags: ["古代信仰", "神具外装", "呪印", "霊光"],
+  },
+  {
+    id: "abyss",
+    name: "深海侵食型",
+    theme: "湿潤な甲殻と発光胞子、鰭と触手を併せ持つ海溝由来の重量級怪獣。",
+    battleImage: "./assets/kaiju/abyss/battle.png",
+    portraitImage: "./assets/kaiju/abyss/portrait.png",
+    iconImage: "./assets/kaiju/abyss/icon.png",
+    tags: ["深海異変", "生体発光", "触手", "海溝圧"],
+  },
+];
 
 const DATA = {
   causes: [
@@ -649,6 +679,7 @@ const state = {
   },
   run: null,
   save: loadSave(),
+  kaijuVisuals: createVisualIndex(DEFAULT_KAIJU_VISUALS),
 };
 
 const app = document.getElementById("app");
@@ -657,6 +688,7 @@ const metaPanel = document.getElementById("metaPanel");
 document.addEventListener("click", handleClick);
 
 render();
+loadKaijuVisualManifest();
 
 function render() {
   renderMeta();
@@ -712,18 +744,26 @@ function renderSetup() {
   renderOptions("amplifierOptions", DATA.amplifiers, state.setup.amplifierId);
 
   const preview = buildRunBlueprint();
+  const visual = getKaijuVisual(preview.cause.id);
+  const previewTags = [...new Set([...visual.tags, ...preview.tags])];
   const previewEl = document.getElementById("setupPreview");
   previewEl.innerHTML = `
     <div class="preview-stack">
       <div class="info-block">
         <p class="eyebrow accent">Kaiju Seed</p>
+        ${renderPortrait(visual, preview.name, "kaiju-preview-portrait")}
         <span class="preview-title">${preview.name}</span>
         <p>${preview.profile}</p>
       </div>
       <div class="info-block">
+        <p class="eyebrow accent">Visual Theme</p>
+        <strong>${visual.name}</strong>
+        <p>${visual.theme}</p>
+      </div>
+      <div class="info-block">
         <p class="eyebrow accent">特性</p>
         <div class="tag-row">
-          ${preview.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}
+          ${previewTags.map((tag) => `<span class="tag">${tag}</span>`).join("")}
         </div>
       </div>
       <div class="info-block">
@@ -884,6 +924,7 @@ function renderMap() {
 function renderBattle() {
   const run = state.run;
   const battle = run.battle;
+  const visual = getKaijuVisual(run.cause.id);
 
   document.getElementById("battleHeading").textContent = `${run.boss.name} を攻略する`;
   document.getElementById("kaijuPanel").innerHTML = renderKaijuPanel(run.kaiju, battle);
@@ -936,16 +977,23 @@ function renderBattle() {
     .reverse()
     .map((entry) => `<div class="log-entry">${entry}</div>`)
     .join("");
+
+  const silhouette = document.querySelector(".monster-silhouette");
+  if (silhouette) {
+    silhouette.innerHTML = renderBattleMonsterVisual(visual, run.kaiju.name);
+  }
 }
 
 function renderResult() {
   const result = state.run.result;
   const run = state.run;
+  const visual = getKaijuVisual(run.cause.id);
   document.getElementById("resultTitle").textContent =
     result.outcome === "victory" ? "都市中枢は崩壊した" : "怪獣は沈黙した";
 
   document.getElementById("resultSummary").innerHTML = `
     <p class="eyebrow accent">Run Summary</p>
+    ${renderPortrait(visual, run.kaiju.name, "result-portrait")}
     <div class="result-callout">${run.kaiju.name}</div>
     <div class="list-stack">
       <div class="result-item info-block">
@@ -1002,9 +1050,12 @@ function renderCodex() {
         history.length
           ? history
               .map(
-                (entry) => `
+                (entry) => {
+                  const visual = getKaijuVisual(entry.visualId || guessVisualId(entry.cause || entry.profile || entry.name));
+                  return `
                   <article class="history-entry">
                     <div class="history-metric">
+                      ${renderIcon(visual, entry.name, "history-icon")}
                       <strong>${entry.name}</strong>
                       <span class="pill">${entry.outcome === "victory" ? "勝利" : "敗北"}</span>
                     </div>
@@ -1012,7 +1063,8 @@ function renderCodex() {
                     <p>${entry.cause} / ${entry.environment} / ${entry.amplifier}</p>
                     <p class="muted">ボス: ${entry.boss} / ${entry.turns} ターン</p>
                   </article>
-                `,
+                `;
+                },
               )
               .join("")
           : "<p class='muted'>まだ履歴がありません。</p>"
@@ -1027,14 +1079,21 @@ function renderCodex() {
         state.save.bestiary.length
           ? state.save.bestiary
               .map(
-                (entry) => `
+                (entry) => {
+                  const visual = getKaijuVisual(entry.visualId || guessVisualId(entry.name + entry.profile));
+                  return `
                   <article class="bestiary-entry info-block">
+                    ${renderPortrait(visual, entry.name, "bestiary-portrait")}
                     <strong>${entry.name}</strong>
                     <p>${entry.profile}</p>
-                    <div class="small-card-list">${entry.parts.map((part) => `<span class="small-card mutation">${part}</span>`).join("")}</div>
+                    <div class="small-card-list">
+                      ${renderIcon(visual, `${entry.name} icon`, "bestiary-icon")}
+                      ${entry.parts.map((part) => `<span class="small-card mutation">${part}</span>`).join("")}
+                    </div>
                     <p class="muted">最大被害: ${entry.bestOutcome}</p>
                   </article>
-                `,
+                `;
+                },
               )
               .join("")
           : "<p class='muted'>図鑑データはまだありません。</p>"
@@ -1316,6 +1375,7 @@ function finalizeRun(outcome, turns) {
     date: new Date().toLocaleString("ja-JP"),
     name: run.kaiju.name,
     cause: run.cause.name,
+    visualId: run.cause.id,
     environment: run.environment.name,
     amplifier: run.amplifier.name,
     boss: run.boss.name,
@@ -1329,11 +1389,13 @@ function finalizeRun(outcome, turns) {
   if (existing) {
     existing.profile = run.kaiju.profile;
     existing.parts = [...new Set([...existing.parts, ...run.kaiju.parts])];
+    existing.visualId = run.cause.id;
     existing.bestOutcome = existing.bestOutcome === "勝利" ? existing.bestOutcome : outcome === "victory" ? "勝利" : "敗北";
   } else {
     state.save.bestiary.push({
       name: run.kaiju.name,
       profile: run.kaiju.profile,
+      visualId: run.cause.id,
       parts: [...run.kaiju.parts],
       bestOutcome: outcome === "victory" ? "勝利" : "敗北",
     });
@@ -1365,6 +1427,7 @@ function buildRunBlueprint() {
   const kaiju = {
     name: generateKaijuName(cause, environment, amplifier),
     profile: `${cause.short} と ${environment.name} を起点に ${amplifier.name} で増幅された災厄。`,
+    visualId: cause.id,
     maxHp: 48 + (cause.statMods.maxHp || 0) + (environment.statMods.maxHp || 0) + (amplifier.statMods.maxHp || 0),
     hp: 48 + (cause.statMods.maxHp || 0) + (environment.statMods.maxHp || 0) + (amplifier.statMods.maxHp || 0),
     power: 4 + (cause.statMods.power || 0) + (environment.statMods.power || 0) + (amplifier.statMods.power || 0),
@@ -1727,4 +1790,61 @@ function loadSave() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.save));
+}
+
+function createVisualIndex(entries) {
+  return entries.reduce((acc, entry) => {
+    acc[entry.id] = entry;
+    return acc;
+  }, {});
+}
+
+async function loadKaijuVisualManifest() {
+  try {
+    const response = await fetch(KAIJU_VISUAL_MANIFEST_PATH, { cache: "no-store" });
+    if (!response.ok) {
+      return;
+    }
+    const manifest = await response.json();
+    state.kaijuVisuals = createVisualIndex(manifest);
+    render();
+  } catch (_error) {
+    // Keep bundled defaults when the manifest cannot be fetched.
+  }
+}
+
+function getKaijuVisual(causeId) {
+  return state.kaijuVisuals[causeId] || state.kaijuVisuals.radiation || DEFAULT_KAIJU_VISUALS[0];
+}
+
+function renderPortrait(visual, alt, className) {
+  return `
+    <div class="${className}-frame">
+      <img class="${className}" src="${visual.portraitImage}" alt="${alt}" loading="lazy" onerror="this.remove()" />
+    </div>
+  `;
+}
+
+function renderIcon(visual, alt, className) {
+  return `<img class="${className}" src="${visual.iconImage}" alt="${alt}" loading="lazy" onerror="this.remove()" />`;
+}
+
+function renderBattleMonsterVisual(visual, alt) {
+  return visual?.battleImage
+    ? `<img class="monster-visual" src="${visual.battleImage}" alt="${alt}" loading="eager" onerror="this.remove()" />`
+    : "";
+}
+
+function guessVisualId(text) {
+  const source = String(text || "");
+  if (source.includes("放射能") || source.includes("核熱暴走") || source.includes("熔核")) {
+    return "radiation";
+  }
+  if (source.includes("古代信仰") || source.includes("神域覚醒") || source.includes("神蝕")) {
+    return "faith";
+  }
+  if (source.includes("深海異変") || source.includes("海溝侵食") || source.includes("海禍")) {
+    return "abyss";
+  }
+  return "radiation";
 }

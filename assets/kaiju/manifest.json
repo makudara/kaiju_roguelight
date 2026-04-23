@@ -1,0 +1,29 @@
+[
+  {
+    "id": "radiation",
+    "name": "熔核装甲型",
+    "theme": "黒鉄の厚い外殻と青緑の放射発光を備えた、結晶背びれの重装型怪獣。",
+    "battleImage": "./assets/kaiju/radiation/battle.png",
+    "portraitImage": "./assets/kaiju/radiation/portrait.png",
+    "iconImage": "./assets/kaiju/radiation/icon.png",
+    "tags": ["放射能", "熔核装甲", "結晶背びれ", "熱線器官"]
+  },
+  {
+    "id": "faith",
+    "name": "神域侵蝕型",
+    "theme": "神具と石像を思わせる外装に、青白い霊光と呪印を帯びた荘厳な怪獣。",
+    "battleImage": "./assets/kaiju/faith/battle.png",
+    "portraitImage": "./assets/kaiju/faith/portrait.png",
+    "iconImage": "./assets/kaiju/faith/icon.png",
+    "tags": ["古代信仰", "神具外装", "呪印", "霊光"]
+  },
+  {
+    "id": "abyss",
+    "name": "深海侵食型",
+    "theme": "湿潤な甲殻と発光胞子、鰭と触手を併せ持つ海溝由来の重量級怪獣。",
+    "battleImage": "./assets/kaiju/abyss/battle.png",
+    "portraitImage": "./assets/kaiju/abyss/portrait.png",
+    "iconImage": "./assets/kaiju/abyss/icon.png",
+    "tags": ["深海異変", "生体発光", "触手", "海溝圧"]
+  }
+]

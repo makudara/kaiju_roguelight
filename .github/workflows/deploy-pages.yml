@@ -32,6 +32,7 @@ jobs:
           cp index.html dist/index.html
           cp styles.css dist/styles.css
           cp app.js dist/app.js
+          cp -R assets dist/assets
           cp .nojekyll dist/.nojekyll
 
       - name: Setup Pages

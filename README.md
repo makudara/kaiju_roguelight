@@ -31,6 +31,16 @@ docker compose down
 - `docker-compose.yml`: ローカル起動用の標準構成
 - `nginx/default.conf`: 静的ファイル配信設定
 - `.github/workflows/deploy-pages.yml`: GitHub Pages 自動デプロイ
+- `assets/kaiju/`: 怪獣素材、manifest、生成プロンプト
+- `scripts/generate_kaiju_assets.py`: 怪獣 PNG 素材の再生成スクリプト
+
+## 怪獣素材の再生成
+
+```bash
+python3 scripts/generate_kaiju_assets.py
+```
+
+出力先は `assets/kaiju/<系統>/` です。
 
 ## GitHub で公開する
 

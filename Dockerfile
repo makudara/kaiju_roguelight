@@ -6,6 +6,7 @@ COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY index.html ./index.html
 COPY styles.css ./styles.css
 COPY app.js ./app.js
+COPY assets ./assets
 
 EXPOSE 8080
 

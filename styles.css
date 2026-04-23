@@ -349,6 +349,28 @@ p {
   gap: 14px;
 }
 
+.kaiju-preview-portrait-frame,
+.result-portrait-frame,
+.bestiary-portrait-frame {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 60% 24%, rgba(69, 216, 232, 0.16), transparent 26%),
+    linear-gradient(180deg, rgba(9, 24, 34, 0.96), rgba(4, 12, 19, 0.98));
+}
+
+.kaiju-preview-portrait-frame {
+  margin-bottom: 12px;
+}
+
+.kaiju-preview-portrait {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
 .info-block {
   padding: 14px;
 }
@@ -528,11 +550,24 @@ p {
   bottom: 10%;
   width: 34%;
   height: 56%;
+  overflow: visible;
   background:
     radial-gradient(circle at 50% 16%, rgba(103, 227, 152, 0.45), transparent 18%),
     linear-gradient(180deg, rgba(53, 67, 74, 0.9), rgba(15, 22, 28, 0.96));
   clip-path: polygon(36% 0%, 46% 10%, 66% 2%, 72% 18%, 100% 28%, 80% 40%, 86% 62%, 66% 70%, 62% 100%, 38% 86%, 18% 88%, 0% 70%, 12% 52%, 8% 28%, 24% 20%);
   filter: drop-shadow(0 0 26px rgba(69, 216, 232, 0.28));
+}
+
+.monster-visual {
+  position: absolute;
+  left: -28%;
+  bottom: -24%;
+  width: 192%;
+  height: 192%;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 34px rgba(69, 216, 232, 0.16))
+    drop-shadow(0 18px 34px rgba(0, 0, 0, 0.35));
 }
 
 .city-silhouette {
@@ -689,6 +724,34 @@ p {
 .result-item,
 .bestiary-entry {
   padding: 14px;
+}
+
+.result-portrait-frame,
+.bestiary-portrait-frame {
+  margin-bottom: 14px;
+}
+
+.result-portrait,
+.bestiary-portrait {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.history-icon,
+.bestiary-icon {
+  flex: 0 0 auto;
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(69, 216, 232, 0.14), transparent 40%),
+    linear-gradient(180deg, rgba(10, 24, 32, 0.86), rgba(4, 12, 18, 0.96));
+  padding: 8px;
 }
 
 .result-callout {
